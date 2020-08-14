@@ -17,12 +17,16 @@ exports.up = function (knex) {
 			.createTable("steps", (tbl) => {
 				tbl.increments("id");
 
+				tbl.integer("step").notNullable();
+
 				tbl
 					.integer("recipe_id")
 					.unsigned()
 					.notNullable()
 					.references("id")
 					.inTable("recipes");
+
+				tbl.string("instructions").notNullable();
 			})
 			// THIS IS THE RECIPE_INGREDIENTS TABLE
 			.createTable("recipe_ing", (tbl) => {
@@ -33,13 +37,17 @@ exports.up = function (knex) {
 					.unsigned()
 					.notNullable()
 					.references("id")
-					.inTable("recipes");
+					.inTable("recipes")
+					.onDelete("RESTRICT")
+					.onUpdate("CASCADE");
 				tbl
 					.integer("ingredient_id")
 					.unsigned()
 					.notNullable()
 					.references("id")
-					.inTable("all_ingredients");
+					.inTable("all_ingredients")
+					.onDelete("RESTRICT")
+					.onUpdate("CASCADE");
 
 				tbl.integer("quantity").notNullable().unsigned();
 				tbl.string("measurement").notNullable().unsigned();
@@ -47,4 +55,10 @@ exports.up = function (knex) {
 	);
 };
 
-exports.down = function (knex) {};
+exports.down = function (knex) {
+	return knex.schema
+		.dropTableIfExists("recipe_ing")
+		.dropTableIfExists("steps")
+		.dropTableIfExists("all_ingredients")
+		.dropTableIfExists("recipes");
+};
